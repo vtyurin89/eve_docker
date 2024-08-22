@@ -1,0 +1,26 @@
+services:
+  eve_nginx:
+    image: nginx:latest
+    volumes:
+      - ./:/var/www/
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    ports:
+      - "8876:80"
+    depends_on:
+      - eve_backend
+    container_name: eve_nginx
+
+  eve_backend:
+    build:
+      context: .
+      dockerfile: eve-backend/Dockerfile
+    volumes:
+      - ./:/var/www/
+    container_name: eve_backend
+
+  redis:
+    image: "redis:latest"
+    restart: always
+    ports:
+      - "6379:6379"
+    container_name: eve_redis
