@@ -1,9 +1,10 @@
 services:
-  eve_nginx:
+  nginx:
     image: nginx:latest
     volumes:
-      - ./:/var/www/
+      - ../eve-backend/:/var/www/
       - ./nginx/conf.d/:/etc/nginx/conf.d/
+    restart: unless-stopped
     ports:
       - "8876:80"
     depends_on:
@@ -15,9 +16,25 @@ services:
       context: .
       dockerfile: eve-backend/Dockerfile
     volumes:
-      - ./:/var/www/
+      - ../eve-backend/:/var/www/
+    depends_on:
+      - db
     container_name: eve_backend
 
+  db:
+    image: mysql:8.3
+    restart: unless-stopped
+    volumes:
+      - ./tmp/db:/var/lib/mysql
+      # - ./mysql_data/exn.sql:/docker-entrypoint-initdb.d/exn.sql
+    ports:
+      - "8101:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: stardb
+    command: ['--character-set-server=utf8mb4', '--default-authentication-plugin=mysql_native_password']
+    container_name: eve_db
+    
   redis:
     image: "redis:latest"
     restart: always
